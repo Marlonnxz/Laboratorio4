@@ -193,7 +193,8 @@ az containerapp create \
     DB_USERNAME=$DB_ADMIN_USER \
     DB_PASSWORD=$DB_ADMIN_PASSWORD \
     AZURE_STORAGE_CONNECTION_STRING="$STORAGE_CONN_STRING" \
-    AZURE_STORAGE_CONTAINER_NAME=academic-files -o table
+    AZURE_STORAGE_CONTAINER_NAME=academic-files \
+    SEED_ENABLED=true -o table
 
 # subjects-service
 az containerapp create \
@@ -215,7 +216,8 @@ az containerapp create \
     DB_USERNAME=$DB_ADMIN_USER \
     DB_PASSWORD=$DB_ADMIN_PASSWORD \
     AZURE_STORAGE_CONNECTION_STRING="$STORAGE_CONN_STRING" \
-    AZURE_STORAGE_CONTAINER_NAME=academic-files -o table
+    AZURE_STORAGE_CONTAINER_NAME=academic-files \
+    SEED_ENABLED=true -o table
 
 # enrollments-service
 az containerapp create \
