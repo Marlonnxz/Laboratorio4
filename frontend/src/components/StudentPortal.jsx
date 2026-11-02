@@ -13,7 +13,7 @@ import {
   CheckCircle,
   FileText
 } from 'lucide-react';
-import { apiRequest } from '../api/client';
+import { apiRequest, sanitizeMediaUrl } from '../api/client';
 
 export default function StudentPortal({ currentUser, onLogout }) {
   const [activeTab, setActiveTab] = useState('detail'); // 'detail' | 'subjects'
@@ -188,7 +188,7 @@ export default function StudentPortal({ currentUser, onLogout }) {
                   <div className="relative shrink-0">
                     {student.photoUrl ? (
                       <img
-                        src={student.photoUrl}
+                        src={sanitizeMediaUrl(student.photoUrl)}
                         alt={`${student.firstName} ${student.lastName}`}
                         className="w-28 h-28 rounded-2xl object-cover border-2 border-emerald-500/40 shadow-lg shadow-emerald-500/10"
                       />
@@ -370,7 +370,7 @@ export default function StudentPortal({ currentUser, onLogout }) {
                           <td className="py-3 px-4 text-right">
                             {sub.pdfUrl ? (
                               <a
-                                href={sub.pdfUrl}
+                                href={sanitizeMediaUrl(sub.pdfUrl)}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 text-xs font-medium transition cursor-pointer"

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, User, BookOpen, GraduationCap, Award, Calendar, Clock } from 'lucide-react';
-import { apiRequest } from '../api/client';
+import { apiRequest, sanitizeMediaUrl } from '../api/client';
 
 export default function StudentDetailModal({ studentId, isOpen, onClose }) {
   const [detail, setDetail] = useState(null);
@@ -87,7 +87,7 @@ export default function StudentDetailModal({ studentId, isOpen, onClose }) {
                 <div className="relative shrink-0">
                   {student.photoUrl ? (
                     <img
-                      src={student.photoUrl}
+                      src={sanitizeMediaUrl(student.photoUrl)}
                       alt={student.firstName}
                       className="w-20 h-20 rounded-2xl object-cover border-2 border-purple-500/40 shadow-lg shadow-purple-500/10"
                     />

@@ -91,7 +91,11 @@ public class AzureBlobStorageService {
                             .setStartTime(startTime);
 
                     String sasToken = blobClient.generateSas(values);
-                    return blobClient.getBlobUrl() + "?" + sasToken;
+                    String sasUrl = blobClient.getBlobUrl() + "?" + sasToken;
+                    if (sasUrl.contains("http://azurite:10000")) {
+                        sasUrl = sasUrl.replace("http://azurite:10000", "http://localhost:10000");
+                    }
+                    return sasUrl;
                 }
             } catch (Exception e) {
                 log.warn("Error generating SAS token for {}: {}", blobName, e.getMessage());

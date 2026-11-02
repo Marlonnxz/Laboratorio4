@@ -39,6 +39,15 @@ export function setGatewayUrl(newUrl) {
   localStorage.setItem('custom_gateway_url', gatewayBaseUrl);
 }
 
+// Rewrites Azurite internal docker hostname to localhost for browser access
+export function sanitizeMediaUrl(url) {
+  if (!url) return null;
+  if (url.includes('http://azurite:10000')) {
+    return url.replace('http://azurite:10000', 'http://localhost:10000');
+  }
+  return url;
+}
+
 export const TOKEN_KEY = 'acad_jwt_token';
 export const USER_KEY = 'acad_user_info';
 
