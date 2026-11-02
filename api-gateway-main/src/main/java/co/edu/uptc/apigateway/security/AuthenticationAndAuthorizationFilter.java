@@ -140,3 +140,4 @@ public class AuthenticationAndAuthorizationFilter implements GlobalFilter, Order
         return -100; // Run early, before proxy routing
     }
 }
+

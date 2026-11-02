@@ -247,3 +247,4 @@ export default function StudentsView({ currentUser }) {
     </div>
   );
 }
+

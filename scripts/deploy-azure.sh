@@ -299,3 +299,4 @@ echo "🔑 Credenciales de Prueba:"
 echo "   • Admin:      admin@uptc.edu.co      / Admin123*"
 echo "   • Estudiante: estudiante1@uptc.edu.co / Student123*"
 echo "=========================================================================="
+

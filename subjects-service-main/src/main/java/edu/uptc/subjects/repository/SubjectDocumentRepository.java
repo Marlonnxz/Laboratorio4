@@ -12,3 +12,4 @@ public interface SubjectDocumentRepository extends JpaRepository<SubjectDocument
     List<SubjectDocument> findBySubjectIdOrderByUploadedAtDesc(Long subjectId);
     Optional<SubjectDocument> findFirstBySubjectIdOrderByUploadedAtDesc(Long subjectId);
 }
+

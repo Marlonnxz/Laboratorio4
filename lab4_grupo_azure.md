@@ -204,3 +204,4 @@ Durante la sustentación con el docente, el grupo ejecutará rigurosamente el gu
 1. **Gestión de Ingress Privado vs. Público:** En Azure Container Apps, los microservicios de dominio se configuraron con `ingress: internal`. Esto evitó exponer endpoints innecesarios a internet y garantizó que el API Gateway sea el único vector de acceso autorizado.
 2. **Cifrado SSL en Redis Administrado:** Azure Cache for Redis exige por defecto conexiones TLS seguras sobre el puerto 6380 con contraseña primaria. Se configuró Lettuce / Reactive Redis en Spring Cloud Gateway con `ssl.enabled: true` y timeout reactivo de 800ms para evitar bloqueos.
 3. **Firmas Temporales SAS sin Exponer Credenciales:** En lugar de guardar URLs públicas o efímeras en base de datos, los microservicios únicamente almacenan los metadatos y generan SAS Tokens sobre la marcha con 15 minutos de vigencia, asegurando cumplimiento estricto con las políticas de almacenamiento privado de Azure.
+

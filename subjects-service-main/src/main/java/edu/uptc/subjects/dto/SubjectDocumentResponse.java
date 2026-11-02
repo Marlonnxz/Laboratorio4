@@ -11,3 +11,4 @@ public record SubjectDocumentResponse(
         LocalDateTime uploadedAt,
         String downloadUrl) {
 }
+

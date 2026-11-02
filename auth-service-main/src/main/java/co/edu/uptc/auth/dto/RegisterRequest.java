@@ -71,3 +71,4 @@ public class RegisterRequest {
         this.studentId = studentId;
     }
 }
+

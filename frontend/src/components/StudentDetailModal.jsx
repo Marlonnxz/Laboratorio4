@@ -215,3 +215,4 @@ export default function StudentDetailModal({ studentId, isOpen, onClose, current
     </div>
   );
 }
+

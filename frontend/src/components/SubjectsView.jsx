@@ -399,3 +399,4 @@ export default function SubjectsView({ currentUser }) {
     </div>
   );
 }
+

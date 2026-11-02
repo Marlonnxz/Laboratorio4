@@ -157,3 +157,4 @@ export default function Navbar({ currentUser, onLoginClick, onLogout, onQuickLog
     </header>
   );
 }
+

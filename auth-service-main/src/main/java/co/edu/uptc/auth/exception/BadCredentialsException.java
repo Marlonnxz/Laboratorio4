@@ -5,3 +5,4 @@ public class BadCredentialsException extends RuntimeException {
         super(message);
     }
 }
+

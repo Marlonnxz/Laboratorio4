@@ -79,3 +79,4 @@ El sistema implementa una arquitectura basada en microservicios independientes, 
 ### C. Seguridad y Roles
 - **Petición sin token**: Retorna **HTTP 401 Unauthorized**.
 - **Estudiante modificando materia o viendo otro perfil**: Retorna **HTTP 403 Forbidden**.
+
