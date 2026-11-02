@@ -1,0 +1,43 @@
+services:
+  students-db:
+    image: postgres:16-alpine
+    container_name: students-db
+    environment:
+      POSTGRES_DB: students_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_students_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d students_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - students-net
+
+  students-service:
+    build: .
+    container_name: students-service
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: students-db
+      DB_PORT: 5432
+      DB_NAME: students_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      students-db:
+        condition: service_healthy
+    networks:
+      - students-net
+
+networks:
+  students-net:
+    driver: bridge
+
+volumes:
+  postgres_students_data:
