@@ -1,6 +1,29 @@
-// API Client configured for Gateway communication with real-time telemetry
+// API Client configured for Gateway communication with automatic cloud resolution
 
-let gatewayBaseUrl = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080';
+function resolveDefaultGatewayUrl() {
+  if (typeof window !== 'undefined' && window.__GATEWAY_URL__) {
+    return window.__GATEWAY_URL__;
+  }
+  const saved = typeof window !== 'undefined' ? localStorage.getItem('custom_gateway_url') : null;
+  if (saved) return saved;
+
+  const envUrl = import.meta.env.VITE_API_GATEWAY_URL;
+  if (envUrl && envUrl !== 'http://localhost:8080') {
+    return envUrl;
+  }
+
+  // Automatic cloud detection for Azure Container Apps
+  if (typeof window !== 'undefined' && window.location) {
+    const host = window.location.hostname;
+    if (host.includes('.azurecontainerapps.io') && host.startsWith('frontend.')) {
+      return window.location.origin.replace('frontend.', 'api-gateway.');
+    }
+  }
+
+  return envUrl || 'http://localhost:8080';
+}
+
+let gatewayBaseUrl = resolveDefaultGatewayUrl();
 
 // Clean trailing slash
 if (gatewayBaseUrl.endsWith('/')) {
@@ -14,12 +37,6 @@ export function getGatewayUrl() {
 export function setGatewayUrl(newUrl) {
   gatewayBaseUrl = newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl;
   localStorage.setItem('custom_gateway_url', gatewayBaseUrl);
-}
-
-// Restore custom gateway URL if set
-const savedGatewayUrl = localStorage.getItem('custom_gateway_url');
-if (savedGatewayUrl) {
-  gatewayBaseUrl = savedGatewayUrl;
 }
 
 export const TOKEN_KEY = 'acad_jwt_token';

@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
  * one response assembled from the three domain services.
  */
 @RestController
+@org.springframework.web.bind.annotation.CrossOrigin(origins = "*")
 @Tag(
         name = "Student Detail",
         description = "Composed student information across students, enrollments and subjects services"

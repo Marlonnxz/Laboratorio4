@@ -90,14 +90,13 @@ public class SubjectCacheGlobalFilter implements GlobalFilter, Ordered {
                     .switchIfEmpty(Mono.defer(() -> {
                         // Cache MISS - intercept downstream response and cache it
                         ServerHttpResponse originalResponse = exchange.getResponse();
+                        originalResponse.getHeaders().set(X_CACHE_HEADER, "MISS");
                         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
 
                         ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(originalResponse) {
                             @Override
                             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
                                 if (getStatusCode() != null && getStatusCode().is2xxSuccessful() && body instanceof Flux) {
-                                    getHeaders().set(X_CACHE_HEADER, "MISS");
-
                                     Flux<? extends DataBuffer> fluxBody = Flux.from(body);
                                     return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
                                         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

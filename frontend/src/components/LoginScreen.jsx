@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Mail, ArrowRight, AlertCircle, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Lock, Mail, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { apiRequest, storeAuth } from '../api/client';
 
 export default function LoginScreen({ onLoginSuccess }) {
@@ -7,7 +7,6 @@ export default function LoginScreen({ onLoginSuccess }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showHelper, setShowHelper] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,16 +38,10 @@ export default function LoginScreen({ onLoginSuccess }) {
     }
   };
 
-  const handleFillPreset = (user, pass) => {
-    setUsername(user);
-    setPassword(pass);
-    setError(null);
-  };
-
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       
-      {/* Decorative gradient glow */}
+      {/* Decorative ambient glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="relative w-full max-w-md">
@@ -58,11 +51,11 @@ export default function LoginScreen({ onLoginSuccess }) {
           
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex h-12 w-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 items-center justify-center mb-3 shadow-lg shadow-emerald-500/10">
-              <ShieldCheck className="h-6 w-6" />
+            <div className="inline-flex h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 items-center justify-center mb-3 shadow-lg shadow-emerald-500/10">
+              <ShieldCheck className="h-7 w-7" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-white">
-              Sistema Académico Distribuido
+              Sistema de Gestión Académica
             </h1>
             <p className="text-xs text-slate-400 mt-1">
               Universidad Pedagógica y Tecnológica de Colombia (UPTC)
@@ -90,8 +83,8 @@ export default function LoginScreen({ onLoginSuccess }) {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="ej: admin@uptc.edu.co o estudiante1@uptc.edu.co"
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition font-mono placeholder:font-sans placeholder:text-slate-600"
+                  placeholder="usuario@uptc.edu.co"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition placeholder:text-slate-600"
                 />
               </div>
             </div>
@@ -129,50 +122,11 @@ export default function LoginScreen({ onLoginSuccess }) {
             </button>
           </form>
 
-          {/* Test Credentials Helper */}
-          <div className="mt-6 pt-5 border-t border-slate-800/80">
-            <button
-              type="button"
-              onClick={() => setShowHelper(!showHelper)}
-              className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-slate-200 transition"
-            >
-              <span className="flex items-center space-x-1.5">
-                <HelpCircle className="h-3.5 w-3.5 text-emerald-400" />
-                <span>Credenciales para Sustentación (Lab 4)</span>
-              </span>
-              <span className="text-[11px] text-slate-500">{showHelper ? 'Ocultar' : 'Ver'}</span>
-            </button>
-
-            {showHelper && (
-              <div className="mt-3 grid grid-cols-2 gap-2 text-xs animate-fadeIn">
-                <button
-                  type="button"
-                  onClick={() => handleFillPreset('admin@uptc.edu.co', 'Admin123*')}
-                  className="p-2.5 text-left rounded-xl bg-slate-950 border border-slate-800 hover:border-purple-500/40 transition group"
-                >
-                  <span className="text-[11px] font-bold text-purple-400 block">ADMIN</span>
-                  <span className="text-[10px] text-slate-400 font-mono block mt-0.5 truncate">admin@uptc.edu.co</span>
-                  <span className="text-[10px] text-slate-500 font-mono">Admin123*</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleFillPreset('estudiante1@uptc.edu.co', 'Student123*')}
-                  className="p-2.5 text-left rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500/40 transition group"
-                >
-                  <span className="text-[11px] font-bold text-emerald-400 block">ESTUDIANTE</span>
-                  <span className="text-[10px] text-slate-400 font-mono block mt-0.5 truncate">estudiante1@uptc.edu.co</span>
-                  <span className="text-[10px] text-slate-500 font-mono">Student123*</span>
-                </button>
-              </div>
-            )}
-          </div>
-
         </div>
 
         {/* Footer info */}
-        <p className="text-center text-[11px] text-slate-500 mt-4">
-          Laboratorio 4 • Sistemas Distribuidos • Microservicios en Azure Cloud
+        <p className="text-center text-[11px] text-slate-500 mt-6">
+          © 2026 Universidad Pedagógica y Tecnológica de Colombia (UPTC) • Sede Sogamoso
         </p>
 
       </div>
