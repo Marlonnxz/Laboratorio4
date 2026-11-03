@@ -126,19 +126,29 @@ az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-
 
 POSTGRES_HOST="${POSTGRES_SERVER}.postgres.database.azure.com"
 
-# 7. Crear Azure Cache for Redis
-echo "⚡ Paso 6: Aprovisionando Azure Cache for Redis ($REDIS_NAME)..."
-az redis show --name $REDIS_NAME --resource-group $RESOURCE_GROUP -o none 2>/dev/null || \
-  az redis create \
-    --resource-group $RESOURCE_GROUP \
-    --name $REDIS_NAME \
-    --location $LOCATION \
-    --sku Basic \
-    --vm-size c0 \
-    -o table
+# 7. Crear Azure Managed Redis (Redis Enterprise)
+echo "⚡ Paso 6: Aprovisionando Azure Managed Redis ($REDIS_NAME)..."
+az extension add --name redisenterprise --upgrade --yes 2>/dev/null || true
 
-REDIS_KEY=$(az redis list-keys --resource-group $RESOURCE_GROUP --name $REDIS_NAME --query primaryKey -o tsv)
-REDIS_HOST="${REDIS_NAME}.redis.cache.windows.net"
+EXISTING_REDIS=$(az redisenterprise list --resource-group "$RESOURCE_GROUP" --query "[0].name" -o tsv 2>/dev/null || true)
+if [ -n "$EXISTING_REDIS" ]; then
+  REDIS_NAME="$EXISTING_REDIS"
+  echo "♻️  Reutilizando instancia de Azure Managed Redis existente: $REDIS_NAME"
+else
+  az redisenterprise create \
+    --cluster-name "$REDIS_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
+    --location "$LOCATION" \
+    --sku "Balanced_B0" \
+    --minimum-tls-version "1.2" \
+    --public-network-access "Enabled" \
+    --access-keys-auth "Enabled" \
+    -o none
+fi
+
+REDIS_KEY=$(az redisenterprise database list-keys --cluster-name "$REDIS_NAME" --resource-group "$RESOURCE_GROUP" --query primaryKey -o tsv)
+REDIS_HOST=$(az redisenterprise show --name "$REDIS_NAME" --resource-group "$RESOURCE_GROUP" --query hostName -o tsv)
+REDIS_PORT=10000
 
 # 8. Crear Azure Container Apps Environment
 echo "🌐 Paso 7: Aprovisionando Azure Container Apps Environment ($CONTAINER_APP_ENV)..."
@@ -147,9 +157,6 @@ az containerapp env show --name $CONTAINER_APP_ENV --resource-group $RESOURCE_GR
     --name $CONTAINER_APP_ENV \
     --resource-group $RESOURCE_GROUP \
     --location $LOCATION -o table
-  --name $CONTAINER_APP_ENV \
-  --resource-group $RESOURCE_GROUP \
-  --location $LOCATION -o table
 
 # 9. Compilación de Imágenes Docker en la nube con ACR Tasks
 echo "🔨 Paso 8: Compilando imágenes Docker en ACR (construcción remota en la nube)..."
@@ -282,7 +289,7 @@ az containerapp create \
     SUBJECTS_SERVICE_URL="http://subjects-service" \
     ENROLLMENTS_SERVICE_URL="http://enrollments-service" \
     REDIS_HOST=$REDIS_HOST \
-    REDIS_PORT=6380 \
+    REDIS_PORT=$REDIS_PORT \
     REDIS_PASSWORD=$REDIS_KEY \
     REDIS_SSL=true \
     JWT_SECRET=$JWT_SECRET \
