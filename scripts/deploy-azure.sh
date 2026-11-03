@@ -135,7 +135,7 @@ az redis show --name $REDIS_NAME --resource-group $RESOURCE_GROUP -o none 2>/dev
     --location $LOCATION \
     --sku Basic \
     --vm-size c0 \
-    --enable-non-ssl-port false -o table
+    -o table
 
 REDIS_KEY=$(az redis list-keys --resource-group $RESOURCE_GROUP --name $REDIS_NAME --query primaryKey -o tsv)
 REDIS_HOST="${REDIS_NAME}.redis.cache.windows.net"
