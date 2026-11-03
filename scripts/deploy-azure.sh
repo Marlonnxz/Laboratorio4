@@ -15,7 +15,7 @@ echo "==========================================================================
 LOCATION="${LOCATION:-northcentralus}"
 RANDOM_SUFFIX=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 5 | head -n 1)
 
-RESOURCE_GROUP="rg-distribuidos-lab4"
+RESOURCE_GROUP="${RESOURCE_GROUP:-rg-distribuidos-lab4-prod}"
 ACR_NAME="acrdislab4${RANDOM_SUFFIX}"
 STORAGE_NAME="stgdislab4${RANDOM_SUFFIX}"
 POSTGRES_SERVER="psql-distribuidos-${RANDOM_SUFFIX}"
