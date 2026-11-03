@@ -10,10 +10,10 @@
 
 | Componente | Tipo de Acceso | URL Pública (HTTPS) |
 | :--- | :--- | :--- |
-| **Frontend Web (SPA)** | Público (HTTPS) | `https://frontend.<unique-domain>.northcentralus.azurecontainerapps.io` |
-| **API Gateway** | Público (HTTPS) | `https://api-gateway.<unique-domain>.northcentralus.azurecontainerapps.io` |
-| **Health Check (Gateway)** | Público (HTTPS) | `https://api-gateway.<unique-domain>.northcentralus.azurecontainerapps.io/actuator/health` |
-| **Swagger UI (Gateway)** | Público (HTTPS) | `https://api-gateway.<unique-domain>.northcentralus.azurecontainerapps.io/swagger-ui.html` |
+| **Frontend Web (SPA)** | Público (HTTPS) | `https://frontend.whitegrass-404c6009.northcentralus.azurecontainerapps.io` |
+| **API Gateway** | Público (HTTPS) | `https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io` |
+| **Health Check (Gateway)** | Público (HTTPS) | `https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io/actuator/health` |
+| **Swagger UI (Gateway)** | Público (HTTPS) | `https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io/swagger-ui.html` |
 
 ### Credenciales de Prueba Preconfiguradas:
 - **Usuario Administrador (`ADMIN`):**

@@ -17,7 +17,20 @@ El sistema implementa una arquitectura basada en microservicios independientes, 
 
 ---
 
-## 2. Requisitos Previos
+## 2. Despliegue Oficial en Microsoft Azure (Cloud)
+
+El sistema se encuentra desplegado y activo en la nube de Microsoft Azure bajo la suscripción Azure for Students:
+
+| Servicio | URL Pública Oficial (HTTPS) |
+| :--- | :--- |
+| **Portal Web (Frontend)** | [https://frontend.whitegrass-404c6009.northcentralus.azurecontainerapps.io](https://frontend.whitegrass-404c6009.northcentralus.azurecontainerapps.io) |
+| **API Gateway** | [https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io](https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io) |
+| **Health Check (Actuator)** | [https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io/actuator/health](https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io/actuator/health) |
+| **Swagger UI** | [https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io/swagger-ui.html](https://api-gateway.whitegrass-404c6009.northcentralus.azurecontainerapps.io/swagger-ui.html) |
+
+---
+
+## 3. Requisitos Previos (Entorno Local)
 
 - **Docker** y **Docker Compose** instalados (probado en Docker 29+).
 - Navegador web moderno (Chrome, Edge, Firefox).
