@@ -32,8 +32,11 @@ echo "🏷️  Sufijo generado: $RANDOM_SUFFIX"
 echo "--------------------------------------------------------------------------"
 
 # 2. Registrar extensiones requeridas en Azure Cloud Shell
-echo "🔧 Paso 1: Verificando extensiones necesarias en Azure CLI..."
+echo "🔧 Paso 1: Verificando extensiones y proveedores en Azure CLI..."
 az extension add --name containerapp --upgrade --yes 2>/dev/null || true
+az provider register --namespace Microsoft.ContainerRegistry --wait
+az provider register --namespace Microsoft.Cache --wait
+az provider register --namespace Microsoft.Storage --wait
 az provider register --namespace Microsoft.App --wait
 az provider register --namespace Microsoft.OperationalInsights --wait
 az provider register --namespace Microsoft.DBforPostgreSQL --wait
