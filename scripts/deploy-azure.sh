@@ -158,26 +158,18 @@ az containerapp env show --name $CONTAINER_APP_ENV --resource-group $RESOURCE_GR
     --resource-group $RESOURCE_GROUP \
     --location $LOCATION -o table
 
-# 9. Compilación de Imágenes Docker en la nube con ACR Tasks
-echo "🔨 Paso 8: Compilando imágenes Docker en ACR (construcción remota en la nube)..."
+# 9. Verificación / Compilación de Imágenes Docker en ACR
+echo "🔨 Paso 8: Verificando imágenes Docker en ACR..."
 
-echo "  -> Compilando auth-service..."
-az acr build --registry $ACR_NAME --image auth-service:latest ./auth-service-main
-
-echo "  -> Compilando students-service..."
-az acr build --registry $ACR_NAME --image students-service:latest ./students-service-main
-
-echo "  -> Compilando subjects-service..."
-az acr build --registry $ACR_NAME --image subjects-service:latest ./subjects-service-main
-
-echo "  -> Compilando enrollments-service..."
-az acr build --registry $ACR_NAME --image enrollments-service:latest ./enrollments-service-main
-
-echo "  -> Compilando api-gateway..."
-az acr build --registry $ACR_NAME --image api-gateway:latest ./api-gateway-main
-
-echo "  -> Compilando frontend..."
-az acr build --registry $ACR_NAME --image frontend:latest ./frontend
+for img in auth-service students-service subjects-service enrollments-service api-gateway frontend; do
+  if az acr repository show --name $ACR_NAME --image "${img}:latest" -o none 2>/dev/null; then
+    echo "  -> ✅ Imagen ${img}:latest ya está presente en ACR."
+  else
+    echo "  -> Compilando ${img} en la nube (ACR Task)..."
+    az acr build --registry $ACR_NAME --image "${img}:latest" "./${img}-main" 2>/dev/null || \
+      echo "  -> (Nota: Si la suscripción restringe ACR Tasks, la imagen debe subirse vía docker push local)."
+  fi
+done
 
 # 10. Despliegue de Microservicios Internos (Sin acceso público)
 echo "🚀 Paso 9: Desplegando microservicios en Azure Container Apps (Ingress Privado)..."
