@@ -12,7 +12,7 @@ echo "☁️  Iniciando Aprovisionamiento de Infraestructura en Microsoft Azure"
 echo "=========================================================================="
 
 # 1. Configuración de Variables Base
-LOCATION="eastus"
+LOCATION="${LOCATION:-westus2}"
 RANDOM_SUFFIX=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 5 | head -n 1)
 
 RESOURCE_GROUP="rg-distribuidos-lab4"
