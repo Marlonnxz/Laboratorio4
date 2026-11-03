@@ -133,10 +133,10 @@ az postgres flexible-server parameter set \
   --value off -o none 2>/dev/null || true
 
 echo "🗄️ Creando las 4 bases de datos independientes requeridas..."
-az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name students_db -o table 2>/dev/null || true
-az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name subjects_db -o table 2>/dev/null || true
-az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name enrollments_db -o table 2>/dev/null || true
-az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name auth_db -o table 2>/dev/null || true
+az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --name students_db -o none 2>/dev/null || true
+az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --name subjects_db -o none 2>/dev/null || true
+az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --name enrollments_db -o none 2>/dev/null || true
+az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --name auth_db -o none 2>/dev/null || true
 
 POSTGRES_HOST="${POSTGRES_SERVER}.postgres.database.azure.com"
 
