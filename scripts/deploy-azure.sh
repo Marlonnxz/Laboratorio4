@@ -146,7 +146,7 @@ else
     -o none
 fi
 
-REDIS_KEY=$(az redisenterprise database list-keys --cluster-name "$REDIS_NAME" --resource-group "$RESOURCE_GROUP" --query primaryKey -o tsv)
+REDIS_KEY=$(az redisenterprise database list-keys --cluster-name "$REDIS_NAME" --resource-group "$RESOURCE_GROUP" --name default --query primaryKey -o tsv 2>/dev/null || az redisenterprise database list-keys --cluster-name "$REDIS_NAME" --resource-group "$RESOURCE_GROUP" --query primaryKey -o tsv 2>/dev/null || true)
 REDIS_HOST=$(az redisenterprise show --name "$REDIS_NAME" --resource-group "$RESOURCE_GROUP" --query hostName -o tsv)
 REDIS_PORT=10000
 
@@ -162,7 +162,7 @@ az containerapp env show --name $CONTAINER_APP_ENV --resource-group $RESOURCE_GR
 echo "🔨 Paso 8: Verificando imágenes Docker en ACR..."
 
 for img in auth-service students-service subjects-service enrollments-service api-gateway frontend; do
-  if az acr repository show --name $ACR_NAME --image "${img}:latest" -o none 2>/dev/null; then
+  if az acr repository show --name $ACR_NAME --repository "${img}" -o none 2>/dev/null; then
     echo "  -> ✅ Imagen ${img}:latest ya está presente en ACR."
   else
     echo "  -> Compilando ${img} en la nube (ACR Task)..."
@@ -187,13 +187,15 @@ az containerapp create \
   --ingress internal \
   --cpu 0.25 --memory 0.5Gi \
   --env-vars \
-    SERVER_PORT=8084 \
-    DB_HOST=$POSTGRES_HOST \
-    DB_PORT=5432 \
-    DB_NAME=auth_db \
-    DB_USERNAME=$DB_ADMIN_USER \
-    DB_PASSWORD=$DB_ADMIN_PASSWORD \
-    JWT_SECRET=$JWT_SECRET -o table
+    "SERVER_PORT=8084" \
+    "DB_HOST=${POSTGRES_HOST}" \
+    "DB_PORT=5432" \
+    "DB_NAME=auth_db" \
+    "DB_USERNAME=${DB_ADMIN_USER}" \
+    "DB_PASSWORD=${DB_ADMIN_PASSWORD}" \
+    "JWT_SECRET=${JWT_SECRET}" -o table
+
+az containerapp ingress update --name auth-service --resource-group $RESOURCE_GROUP --allow-insecure true -o none 2>/dev/null || true
 
 # students-service
 az containerapp create \
@@ -208,15 +210,17 @@ az containerapp create \
   --ingress internal \
   --cpu 0.25 --memory 0.5Gi \
   --env-vars \
-    SERVER_PORT=8081 \
-    DB_HOST=$POSTGRES_HOST \
-    DB_PORT=5432 \
-    DB_NAME=students_db \
-    DB_USERNAME=$DB_ADMIN_USER \
-    DB_PASSWORD=$DB_ADMIN_PASSWORD \
-    AZURE_STORAGE_CONNECTION_STRING="$STORAGE_CONN_STRING" \
-    AZURE_STORAGE_CONTAINER_NAME=academic-files \
-    SEED_ENABLED=true -o table
+    "SERVER_PORT=8081" \
+    "DB_HOST=${POSTGRES_HOST}" \
+    "DB_PORT=5432" \
+    "DB_NAME=students_db" \
+    "DB_USERNAME=${DB_ADMIN_USER}" \
+    "DB_PASSWORD=${DB_ADMIN_PASSWORD}" \
+    "AZURE_STORAGE_CONNECTION_STRING=${STORAGE_CONN_STRING}" \
+    "AZURE_STORAGE_CONTAINER_NAME=academic-files" \
+    "SEED_ENABLED=true" -o table
+
+az containerapp ingress update --name students-service --resource-group $RESOURCE_GROUP --allow-insecure true -o none 2>/dev/null || true
 
 # subjects-service
 az containerapp create \
@@ -231,15 +235,17 @@ az containerapp create \
   --ingress internal \
   --cpu 0.25 --memory 0.5Gi \
   --env-vars \
-    SERVER_PORT=8082 \
-    DB_HOST=$POSTGRES_HOST \
-    DB_PORT=5432 \
-    DB_NAME=subjects_db \
-    DB_USERNAME=$DB_ADMIN_USER \
-    DB_PASSWORD=$DB_ADMIN_PASSWORD \
-    AZURE_STORAGE_CONNECTION_STRING="$STORAGE_CONN_STRING" \
-    AZURE_STORAGE_CONTAINER_NAME=academic-files \
-    SEED_ENABLED=true -o table
+    "SERVER_PORT=8082" \
+    "DB_HOST=${POSTGRES_HOST}" \
+    "DB_PORT=5432" \
+    "DB_NAME=subjects_db" \
+    "DB_USERNAME=${DB_ADMIN_USER}" \
+    "DB_PASSWORD=${DB_ADMIN_PASSWORD}" \
+    "AZURE_STORAGE_CONNECTION_STRING=${STORAGE_CONN_STRING}" \
+    "AZURE_STORAGE_CONTAINER_NAME=academic-files" \
+    "SEED_ENABLED=true" -o table
+
+az containerapp ingress update --name subjects-service --resource-group $RESOURCE_GROUP --allow-insecure true -o none 2>/dev/null || true
 
 # enrollments-service
 az containerapp create \
@@ -254,12 +260,14 @@ az containerapp create \
   --ingress internal \
   --cpu 0.25 --memory 0.5Gi \
   --env-vars \
-    SERVER_PORT=8083 \
-    DB_HOST=$POSTGRES_HOST \
-    DB_PORT=5432 \
-    DB_NAME=enrollments_db \
-    DB_USERNAME=$DB_ADMIN_USER \
-    DB_PASSWORD=$DB_ADMIN_PASSWORD -o table
+    "SERVER_PORT=8083" \
+    "DB_HOST=${POSTGRES_HOST}" \
+    "DB_PORT=5432" \
+    "DB_NAME=enrollments_db" \
+    "DB_USERNAME=${DB_ADMIN_USER}" \
+    "DB_PASSWORD=${DB_ADMIN_PASSWORD}" -o table
+
+az containerapp ingress update --name enrollments-service --resource-group $RESOURCE_GROUP --allow-insecure true -o none 2>/dev/null || true
 
 # 11. Despliegue de API Gateway (Ingress Público con HTTPS)
 echo "🚪 Paso 10: Desplegando API Gateway con Ingress Público (HTTPS)..."
@@ -275,19 +283,19 @@ az containerapp create \
   --ingress external \
   --cpu 0.5 --memory 1.0Gi \
   --env-vars \
-    SERVER_PORT=8080 \
-    AUTH_SERVICE_URL="http://auth-service" \
-    STUDENTS_SERVICE_URL="http://students-service" \
-    SUBJECTS_SERVICE_URL="http://subjects-service" \
-    ENROLLMENTS_SERVICE_URL="http://enrollments-service" \
-    REDIS_HOST=$REDIS_HOST \
-    REDIS_PORT=$REDIS_PORT \
-    REDIS_PASSWORD=$REDIS_KEY \
-    REDIS_SSL=true \
-    JWT_SECRET=$JWT_SECRET \
-    GATEWAY_SECURITY_ENABLED=true \
-    GATEWAY_CACHE_ENABLED=true \
-    GATEWAY_CACHE_TTL_SECONDS=180 -o table
+    "SERVER_PORT=8080" \
+    "AUTH_SERVICE_URL=http://auth-service" \
+    "STUDENTS_SERVICE_URL=http://students-service" \
+    "SUBJECTS_SERVICE_URL=http://subjects-service" \
+    "ENROLLMENTS_SERVICE_URL=http://enrollments-service" \
+    "REDIS_HOST=${REDIS_HOST}" \
+    "REDIS_PORT=${REDIS_PORT}" \
+    "REDIS_PASSWORD=${REDIS_KEY}" \
+    "REDIS_SSL=true" \
+    "JWT_SECRET=${JWT_SECRET}" \
+    "GATEWAY_SECURITY_ENABLED=true" \
+    "GATEWAY_CACHE_ENABLED=true" \
+    "GATEWAY_CACHE_TTL_SECONDS=180" -o table
 
 GATEWAY_FQDN=$(az containerapp show --name api-gateway --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
 GATEWAY_PUBLIC_URL="https://${GATEWAY_FQDN}"
@@ -306,7 +314,7 @@ az containerapp create \
   --ingress external \
   --cpu 0.25 --memory 0.5Gi \
   --env-vars \
-    VITE_API_GATEWAY_URL=$GATEWAY_PUBLIC_URL -o table
+    "VITE_API_GATEWAY_URL=${GATEWAY_PUBLIC_URL}" -o table
 
 FRONTEND_FQDN=$(az containerapp show --name frontend --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
 FRONTEND_PUBLIC_URL="https://${FRONTEND_FQDN}"
