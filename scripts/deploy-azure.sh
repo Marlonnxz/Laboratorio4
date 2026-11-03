@@ -114,14 +114,14 @@ echo "🛡️ Configurando regla de firewall para servicios de Azure..."
 az postgres flexible-server firewall-rule create \
   --resource-group $RESOURCE_GROUP \
   --server-name $POSTGRES_SERVER \
-  --rule-name AllowAzureServices \
+  --name AllowAzureServices \
   --start-ip-address 0.0.0.0 \
   --end-ip-address 0.0.0.0 -o none 2>/dev/null || true
 
 az postgres flexible-server firewall-rule create \
   --resource-group $RESOURCE_GROUP \
   --server-name $POSTGRES_SERVER \
-  --rule-name AllowAllTraffic \
+  --name AllowAllTraffic \
   --start-ip-address 0.0.0.0 \
   --end-ip-address 255.255.255.255 -o none 2>/dev/null || true
 
