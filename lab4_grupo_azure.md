@@ -10,10 +10,10 @@
 
 | Componente | Tipo de Acceso | URL Pública (HTTPS) |
 | :--- | :--- | :--- |
-| **Frontend Web (SPA)** | Público (HTTPS) | `https://frontend.<unique-domain>.westus2.azurecontainerapps.io` |
-| **API Gateway** | Público (HTTPS) | `https://api-gateway.<unique-domain>.westus2.azurecontainerapps.io` |
-| **Health Check (Gateway)** | Público (HTTPS) | `https://api-gateway.<unique-domain>.westus2.azurecontainerapps.io/actuator/health` |
-| **Swagger UI (Gateway)** | Público (HTTPS) | `https://api-gateway.<unique-domain>.westus2.azurecontainerapps.io/swagger-ui.html` |
+| **Frontend Web (SPA)** | Público (HTTPS) | `https://frontend.<unique-domain>.northcentralus.azurecontainerapps.io` |
+| **API Gateway** | Público (HTTPS) | `https://api-gateway.<unique-domain>.northcentralus.azurecontainerapps.io` |
+| **Health Check (Gateway)** | Público (HTTPS) | `https://api-gateway.<unique-domain>.northcentralus.azurecontainerapps.io/actuator/health` |
+| **Swagger UI (Gateway)** | Público (HTTPS) | `https://api-gateway.<unique-domain>.northcentralus.azurecontainerapps.io/swagger-ui.html` |
 
 ### Credenciales de Prueba Preconfiguradas:
 - **Usuario Administrador (`ADMIN`):**
@@ -51,12 +51,12 @@ Diseño y aprovisionamiento real de costo mínimo justificado para suscripción 
 
 | Necesidad del Sistema | Servicio Real Aprovisionado | Tipo de Servicio | Configuración (Región, Tamaño, Redundancia) | Justificación Arquitectural y de Costos |
 | :--- | :--- | :--- | :--- | :--- |
-| **Registro de Contenedores** | Azure Container Registry (ACR) | PaaS | Región `West US 2`, SKU `Basic`, 10 GB almacenamiento, cifrado en reposo. | Registro privado y seguro para las imágenes Docker de los 6 microservicios. Costo aproximado: \$0.16 USD/día. |
-| **Cómputo Backend & Gateway (5 apps)** | Azure Container Apps (ACA) | Serverless / PaaS | Región `West US 2`, Perfil de consumo serverless, 0.25 vCPU y 0.5 GiB RAM por réplica. `Ingress: internal` para módulos privados. | Aislamiento en red virtual interna sin costo de IPs públicas ni balanceadores dedicados. Escala a cero para ahorrar crédito. |
-| **Cómputo Frontend Web (1 app)** | Azure Container Apps (ACA) | Serverless / PaaS | Región `West US 2`, Perfil de consumo serverless, `Ingress: external` con terminación TLS/HTTPS automática. | Despliegue contenerizado servido mediante Nginx con compresión gzip y soporte SPA. |
-| **Bases de Datos Relacionales** | Azure Database for PostgreSQL Flexible Server | PaaS Administrado | Región `West US 2`, SKU `Standard_B1ms` (1 vCPU, 2 GiB RAM, 32 GB almacenamiento), Burstable, redundancia local (LRS), respaldos a 7 días. | Una sola instancia administrada aloja 4 bases de datos independientes (`students_db`, `subjects_db`, `enrollments_db`, `auth_db`) con usuarios separados, optimizando costos dentro del cupo estudiantil. |
-| **Caché Compartido** | Azure Cache for Redis | PaaS Administrado | Región `West US 2`, Nivel `Basic C0` (250 MB de memoria), puerto SSL 6380, cifrado TLS 1.2 obligatorio. | Caché en memoria para acelerar consultas repetidas de materias y proteger la base de datos de sobrecargas. |
-| **Almacenamiento de Archivos** | Azure Blob Storage (Storage Account) | PaaS Administrado | Región `West US 2`, Tipo `StorageV2`, Nivel `Standard_LRS`, Acceso público anónimo bloqueado (`allowBlobPublicAccess: false`). | Contenedor privado `academic-files` para fotos y PDFs. Acceso seguro exclusivamente mediante URLs temporales firmadas (SAS Tokens). |
+| **Registro de Contenedores** | Azure Container Registry (ACR) | PaaS | Región `North Central US`, SKU `Basic`, 10 GB almacenamiento, cifrado en reposo. | Registro privado y seguro para las imágenes Docker de los 6 microservicios. Costo aproximado: \$0.16 USD/día. |
+| **Cómputo Backend & Gateway (5 apps)** | Azure Container Apps (ACA) | Serverless / PaaS | Región `North Central US`, Perfil de consumo serverless, 0.25 vCPU y 0.5 GiB RAM por réplica. `Ingress: internal` para módulos privados. | Aislamiento en red virtual interna sin costo de IPs públicas ni balanceadores dedicados. Escala a cero para ahorrar crédito. |
+| **Cómputo Frontend Web (1 app)** | Azure Container Apps (ACA) | Serverless / PaaS | Región `North Central US`, Perfil de consumo serverless, `Ingress: external` con terminación TLS/HTTPS automática. | Despliegue contenerizado servido mediante Nginx con compresión gzip y soporte SPA. |
+| **Bases de Datos Relacionales** | Azure Database for PostgreSQL Flexible Server | PaaS Administrado | Región `North Central US`, SKU `Standard_B1ms` (1 vCPU, 2 GiB RAM, 32 GB almacenamiento), Burstable, redundancia local (LRS), respaldos a 7 días. | Una sola instancia administrada aloja 4 bases de datos independientes (`students_db`, `subjects_db`, `enrollments_db`, `auth_db`) con usuarios separados, optimizando costos dentro del cupo estudiantil. |
+| **Caché Compartido** | Azure Cache for Redis | PaaS Administrado | Región `North Central US`, Nivel `Basic C0` (250 MB de memoria), puerto SSL 6380, cifrado TLS 1.2 obligatorio. | Caché en memoria para acelerar consultas repetidas de materias y proteger la base de datos de sobrecargas. |
+| **Almacenamiento de Archivos** | Azure Blob Storage (Storage Account) | PaaS Administrado | Región `North Central US`, Tipo `StorageV2`, Nivel `Standard_LRS`, Acceso público anónimo bloqueado (`allowBlobPublicAccess: false`). | Contenedor privado `academic-files` para fotos y PDFs. Acceso seguro exclusivamente mediante URLs temporales firmadas (SAS Tokens). |
 | **Gestión de Secretos** | Secretos de Container Apps | PaaS / Integrado | Cifrado en reposo integrado en Azure Container Apps Environment. | Claves de firma JWT, contraseñas de BD y cadenas de conexión inyectadas como variables seguras. Ningún secreto en Git ni imágenes. |
 
 ---

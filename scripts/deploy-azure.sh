@@ -12,7 +12,7 @@ echo "☁️  Iniciando Aprovisionamiento de Infraestructura en Microsoft Azure"
 echo "=========================================================================="
 
 # 1. Configuración de Variables Base
-LOCATION="${LOCATION:-westus2}"
+LOCATION="${LOCATION:-northcentralus}"
 RANDOM_SUFFIX=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 5 | head -n 1)
 
 RESOURCE_GROUP="rg-distribuidos-lab4"
@@ -93,6 +93,7 @@ az postgres flexible-server create \
   --tier Burstable \
   --storage-size 32 \
   --backup-retention 7 \
+  --public-access 0.0.0.0 \
   --yes -o table
 
 echo "🛡️ Configurando regla de firewall para servicios internos de Azure..."
@@ -101,7 +102,7 @@ az postgres flexible-server firewall-rule create \
   --name $POSTGRES_SERVER \
   --rule-name AllowAzureServices \
   --start-ip-address 0.0.0.0 \
-  --end-ip-address 0.0.0.0 -o table
+  --end-ip-address 0.0.0.0 -o table 2>/dev/null || true
 
 echo "🗄️ Creando las 4 bases de datos independientes requeridas..."
 az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name students_db -o table
