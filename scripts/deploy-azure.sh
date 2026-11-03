@@ -13,9 +13,19 @@ echo "==========================================================================
 
 # 1. Configuración de Variables Base
 LOCATION="${LOCATION:-northcentralus}"
-RANDOM_SUFFIX=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 5 | head -n 1)
-
 RESOURCE_GROUP="${RESOURCE_GROUP:-rg-distribuidos-lab4-prod}"
+
+# Detección inteligente de recursos ya creados en el grupo
+if [ -z "$RANDOM_SUFFIX" ]; then
+  EXISTING_ACR=$(az acr list --resource-group "$RESOURCE_GROUP" --query "[0].name" -o tsv 2>/dev/null || true)
+  if [ -n "$EXISTING_ACR" ]; then
+    RANDOM_SUFFIX=${EXISTING_ACR#acrdislab4}
+    echo "♻️  Detectados recursos existentes con sufijo: $RANDOM_SUFFIX"
+  else
+    RANDOM_SUFFIX=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 5 | head -n 1)
+  fi
+fi
+
 ACR_NAME="acrdislab4${RANDOM_SUFFIX}"
 STORAGE_NAME="stgdislab4${RANDOM_SUFFIX}"
 POSTGRES_SERVER="psql-distribuidos-${RANDOM_SUFFIX}"
@@ -28,7 +38,7 @@ JWT_SECRET="uptc_sistemas_distribuidos_super_secret_jwt_key_2026_lab4!"
 
 echo "📍 Región: $LOCATION"
 echo "📦 Grupo de Recursos: $RESOURCE_GROUP"
-echo "🏷️  Sufijo generado: $RANDOM_SUFFIX"
+echo "🏷️  Sufijo: $RANDOM_SUFFIX"
 echo "--------------------------------------------------------------------------"
 
 # 2. Registrar extensiones requeridas en Azure Cloud Shell
@@ -42,92 +52,101 @@ az provider register --namespace Microsoft.OperationalInsights --wait
 az provider register --namespace Microsoft.DBforPostgreSQL --wait
 
 # 3. Crear Grupo de Recursos
-echo "📁 Paso 2: Creando Grupo de Recursos ($RESOURCE_GROUP)..."
-az group create --name $RESOURCE_GROUP --location $LOCATION -o table
+echo "📁 Paso 2: Verificando Grupo de Recursos ($RESOURCE_GROUP)..."
+az group show --name $RESOURCE_GROUP -o none 2>/dev/null || \
+  az group create --name $RESOURCE_GROUP --location $LOCATION -o table
 
 # 4. Crear Azure Container Registry (ACR)
-echo "🐳 Paso 3: Aprovisionando Azure Container Registry ($ACR_NAME)..."
-az acr create \
-  --resource-group $RESOURCE_GROUP \
-  --name $ACR_NAME \
-  --sku Basic \
-  --admin-enabled true \
-  -o table
+echo "🐳 Paso 3: Verificando Azure Container Registry ($ACR_NAME)..."
+az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP -o none 2>/dev/null || \
+  az acr create \
+    --resource-group $RESOURCE_GROUP \
+    --name $ACR_NAME \
+    --sku Basic \
+    --admin-enabled true \
+    -o table
 
 ACR_LOGIN_SERVER=$(az acr show --name $ACR_NAME --query loginServer -o tsv)
 ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --query "passwords[0].value" -o tsv)
 
 # 5. Crear Azure Storage Account (Blob Storage) & Bucket Privado
-echo "💾 Paso 4: Aprovisionando Azure Storage Account ($STORAGE_NAME)..."
-az storage account create \
-  --name $STORAGE_NAME \
-  --resource-group $RESOURCE_GROUP \
-  --location $LOCATION \
-  --sku Standard_LRS \
-  --kind StorageV2 \
-  --allow-blob-public-access false \
-  -o table
+echo "💾 Paso 4: Verificando Azure Storage Account ($STORAGE_NAME)..."
+az storage account show --name $STORAGE_NAME --resource-group $RESOURCE_GROUP -o none 2>/dev/null || \
+  az storage account create \
+    --name $STORAGE_NAME \
+    --resource-group $RESOURCE_GROUP \
+    --location $LOCATION \
+    --sku Standard_LRS \
+    --kind StorageV2 \
+    --allow-blob-public-access false \
+    -o table
 
 STORAGE_CONN_STRING=$(az storage account show-connection-string \
   --name $STORAGE_NAME \
   --resource-group $RESOURCE_GROUP \
   --query connectionString -o tsv)
 
-echo "🔒 Creando contenedor privado 'academic-files'..."
+echo "🔒 Verificando contenedor privado 'academic-files'..."
 az storage container create \
   --name "academic-files" \
   --account-name $STORAGE_NAME \
   --auth-mode key \
   --public-access off \
-  -o table
+  -o table 2>/dev/null || true
 
 # 6. Crear Azure Database for PostgreSQL Flexible Server
-echo "🐘 Paso 5: Aprovisionando Azure Database for PostgreSQL Flexible Server ($POSTGRES_SERVER)..."
-az postgres flexible-server create \
-  --resource-group $RESOURCE_GROUP \
-  --name $POSTGRES_SERVER \
-  --location $LOCATION \
-  --admin-user $DB_ADMIN_USER \
-  --admin-password $DB_ADMIN_PASSWORD \
-  --sku-name Standard_B1ms \
-  --tier Burstable \
-  --storage-size 32 \
-  --backup-retention 7 \
-  --public-access 0.0.0.0 \
-  --yes -o table
+echo "🐘 Paso 5: Verificando PostgreSQL Flexible Server ($POSTGRES_SERVER)..."
+az postgres flexible-server show --name $POSTGRES_SERVER --resource-group $RESOURCE_GROUP -o none 2>/dev/null || \
+  az postgres flexible-server create \
+    --resource-group $RESOURCE_GROUP \
+    --name $POSTGRES_SERVER \
+    --location $LOCATION \
+    --admin-user $DB_ADMIN_USER \
+    --admin-password $DB_ADMIN_PASSWORD \
+    --sku-name Standard_B1ms \
+    --tier Burstable \
+    --storage-size 32 \
+    --backup-retention 7 \
+    --public-access 0.0.0.0 \
+    --yes
 
-echo "🛡️ Configurando regla de firewall para servicios internos de Azure..."
+echo "🛡️ Configurando regla de firewall para servicios de Azure..."
 az postgres flexible-server firewall-rule create \
   --resource-group $RESOURCE_GROUP \
   --name $POSTGRES_SERVER \
   --rule-name AllowAzureServices \
   --start-ip-address 0.0.0.0 \
-  --end-ip-address 0.0.0.0 -o table 2>/dev/null || true
+  --end-ip-address 0.0.0.0 -o none 2>/dev/null || true
 
 echo "🗄️ Creando las 4 bases de datos independientes requeridas..."
-az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name students_db -o table
-az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name subjects_db -o table
-az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name enrollments_db -o table
-az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name auth_db -o table
+az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name students_db -o table 2>/dev/null || true
+az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name subjects_db -o table 2>/dev/null || true
+az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name enrollments_db -o table 2>/dev/null || true
+az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name auth_db -o table 2>/dev/null || true
 
 POSTGRES_HOST="${POSTGRES_SERVER}.postgres.database.azure.com"
 
 # 7. Crear Azure Cache for Redis
 echo "⚡ Paso 6: Aprovisionando Azure Cache for Redis ($REDIS_NAME)..."
-az redis create \
-  --resource-group $RESOURCE_GROUP \
-  --name $REDIS_NAME \
-  --location $LOCATION \
-  --sku Basic \
-  --vm-size c0 \
-  --enable-non-ssl-port false -o table
+az redis show --name $REDIS_NAME --resource-group $RESOURCE_GROUP -o none 2>/dev/null || \
+  az redis create \
+    --resource-group $RESOURCE_GROUP \
+    --name $REDIS_NAME \
+    --location $LOCATION \
+    --sku Basic \
+    --vm-size c0 \
+    --enable-non-ssl-port false -o table
 
 REDIS_KEY=$(az redis list-keys --resource-group $RESOURCE_GROUP --name $REDIS_NAME --query primaryKey -o tsv)
 REDIS_HOST="${REDIS_NAME}.redis.cache.windows.net"
 
 # 8. Crear Azure Container Apps Environment
 echo "🌐 Paso 7: Aprovisionando Azure Container Apps Environment ($CONTAINER_APP_ENV)..."
-az containerapp env create \
+az containerapp env show --name $CONTAINER_APP_ENV --resource-group $RESOURCE_GROUP -o none 2>/dev/null || \
+  az containerapp env create \
+    --name $CONTAINER_APP_ENV \
+    --resource-group $RESOURCE_GROUP \
+    --location $LOCATION -o table
   --name $CONTAINER_APP_ENV \
   --resource-group $RESOURCE_GROUP \
   --location $LOCATION -o table
