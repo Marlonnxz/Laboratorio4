@@ -118,6 +118,20 @@ az postgres flexible-server firewall-rule create \
   --start-ip-address 0.0.0.0 \
   --end-ip-address 0.0.0.0 -o none 2>/dev/null || true
 
+az postgres flexible-server firewall-rule create \
+  --resource-group $RESOURCE_GROUP \
+  --name $POSTGRES_SERVER \
+  --rule-name AllowAllTraffic \
+  --start-ip-address 0.0.0.0 \
+  --end-ip-address 255.255.255.255 -o none 2>/dev/null || true
+
+echo "⚙️ Ajustando parámetro require_secure_transport para máxima compatibilidad..."
+az postgres flexible-server parameter set \
+  --resource-group $RESOURCE_GROUP \
+  --server-name $POSTGRES_SERVER \
+  --name require_secure_transport \
+  --value off -o none 2>/dev/null || true
+
 echo "🗄️ Creando las 4 bases de datos independientes requeridas..."
 az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name students_db -o table 2>/dev/null || true
 az postgres flexible-server db create --resource-group $RESOURCE_GROUP --server-name $POSTGRES_SERVER --database-name subjects_db -o table 2>/dev/null || true
@@ -271,6 +285,18 @@ az containerapp ingress update --name enrollments-service --resource-group $RESO
 
 # 11. Despliegue de API Gateway (Ingress Público con HTTPS)
 echo "🚪 Paso 10: Desplegando API Gateway con Ingress Público (HTTPS)..."
+
+AUTH_FQDN=$(az containerapp show --name auth-service --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
+STUDENTS_FQDN=$(az containerapp show --name students-service --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
+SUBJECTS_FQDN=$(az containerapp show --name subjects-service --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
+ENROLLMENTS_FQDN=$(az containerapp show --name enrollments-service --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
+
+echo "🔗 Rutas internas FQDN:"
+echo "   • Auth:        https://${AUTH_FQDN}"
+echo "   • Students:    https://${STUDENTS_FQDN}"
+echo "   • Subjects:    https://${SUBJECTS_FQDN}"
+echo "   • Enrollments: https://${ENROLLMENTS_FQDN}"
+
 az containerapp create \
   --name api-gateway \
   --resource-group $RESOURCE_GROUP \
@@ -284,10 +310,10 @@ az containerapp create \
   --cpu 0.5 --memory 1.0Gi \
   --env-vars \
     "SERVER_PORT=8080" \
-    "AUTH_SERVICE_URL=http://auth-service" \
-    "STUDENTS_SERVICE_URL=http://students-service" \
-    "SUBJECTS_SERVICE_URL=http://subjects-service" \
-    "ENROLLMENTS_SERVICE_URL=http://enrollments-service" \
+    "AUTH_SERVICE_URL=https://${AUTH_FQDN}" \
+    "STUDENTS_SERVICE_URL=https://${STUDENTS_FQDN}" \
+    "SUBJECTS_SERVICE_URL=https://${SUBJECTS_FQDN}" \
+    "ENROLLMENTS_SERVICE_URL=https://${ENROLLMENTS_FQDN}" \
     "REDIS_HOST=${REDIS_HOST}" \
     "REDIS_PORT=${REDIS_PORT}" \
     "REDIS_PASSWORD=${REDIS_KEY}" \
