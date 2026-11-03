@@ -38,10 +38,10 @@ Cumpliendo con la condición obligatoria de la sección 2 y 10 del documento ofi
 
 | Integrante | Rol en el Proyecto | Componente Responsable | Alcance Técnico Declarado |
 | :--- | :--- | :--- | :--- |
-| **Marlon (Líder)** | Arquitecto de Infraestructura & Backend | **API Gateway & Despliegue Azure** | Orquestación en Spring Cloud Gateway, Filtro Global JWT, Caché reactivo en Redis, Ingress en Azure Container Apps y aprovisionamiento PaaS. |
-| **Integrante 2** | Desarrollador Backend Seguridad | **Módulo de Autenticación (`auth-service`)** | Microservicio independiente, hash BCrypt, base de datos `auth_db`, emisión de tokens JWT y endpoints `/api/auth/**`. |
-| **Integrante 3** | Desarrollador Backend & Cloud Storage | **Módulo de Estudiantes & Blob Storage** | `students-service`, fotos de alumnos (JPG/PNG $\le$ 2MB), generación de SAS Tokens y persistencia de metadatos en `students_db`. |
-| **Integrante 4** | Desarrollador Fullstack | **Módulo de Materias & Frontend SPA** | `subjects-service`, PDFs temáticos ($\le$ 10MB), SPA en React + Tailwind + Nginx y telemetría de `X-Cache`. |
+| **Marlon Delgado (Líder)** | Arquitecto de Infraestructura & Backend | **Infraestructura Cloud, Despliegue Azure & Backend** | Aprovisionamiento PaaS en Microsoft Azure (Container Apps, PostgreSQL Flexible Server, Azure Managed Redis, Storage Account), contenedorización Docker, scripting de automatización (`deploy-azure.sh`) y soporte de integración backend. |
+| **María Angarita** | Arquitecta de Gateway & Seguridad Distribuida | **API Gateway (`api-gateway`) & Módulo Auth** | Orquestación reactiva con Spring Cloud Gateway WebFlux, Filtro Global JWT, control de acceso por roles (RBAC: `ADMIN` y `ESTUDIANTE`), endpoint de composición BFF (`/api/students/{id}/detail`) y caché reactivo en Redis. |
+| **Camila Figueredo** | Desarrolladora Backend & Gestión Académica | **Módulo de Materias (`subjects-service`) & Frontend** | Microservicio `subjects-service`, base de datos `subjects_db`, gestión y almacenamiento de contenidos temáticos en PDF ($\le$ 10MB) en Azure Blob Storage con SAS Tokens (15 min), telemetría de caché (`X-Cache`) e interfaz web SPA (React + Tailwind CSS). |
+| **Karen Cruz** | Desarrolladora Backend & Ciclo Estudiantil | **Módulo de Estudiantes (`students-service`) & Matrículas (`enrollments-service`)** | Microservicios `students-service` y `enrollments-service`, bases de datos `students_db` y `enrollments_db`, carga y validación de fotografías de perfil (JPG/PNG $\le$ 2MB) en bucket privado, control transaccional de cupos e inicialización de datos académicos. |
 
 ---
 

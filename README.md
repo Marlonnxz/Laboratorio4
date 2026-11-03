@@ -30,14 +30,27 @@ El sistema se encuentra desplegado y activo en la nube de Microsoft Azure bajo l
 
 ---
 
-## 3. Requisitos Previos (Entorno Local)
+## 3. Integrantes del Equipo y Reparto de Responsabilidades
+
+En cumplimiento con los requerimientos de la asignatura de **Sistemas Distribuidos**, el diseño, implementación y despliegue del sistema fue distribuido formalmente entre los integrantes:
+
+| Integrante | Rol en el Proyecto | Componente Responsable | Alcance Técnico Implementado |
+| :--- | :--- | :--- | :--- |
+| **Marlon Delgado** | Líder de Proyecto & Arquitecto Cloud / DevOps | **Infraestructura Cloud, Despliegue Azure & Backend** | Aprovisionamiento de recursos en Microsoft Azure (Container Apps, PostgreSQL Flexible Server, Azure Managed Redis, Storage Account), contenedorización con Docker / Docker Compose, scripting de automatización (`deploy-azure.sh`) y soporte de integración backend. |
+| **María Angarita** | Arquitecta de Gateway & Seguridad Distribuida | **API Gateway (`api-gateway`) & Módulo Auth** | Implementación reactiva con Spring Cloud Gateway WebFlux, Filtro Global JWT, control de acceso basado en roles (RBAC: `ADMIN` y `ESTUDIANTE`), orquestación del endpoint de composición BFF (`/api/students/{id}/detail`) y configuración de caché reactivo en Redis. |
+| **Camila Figueredo** | Desarrolladora Backend & Gestión Académica | **Módulo de Materias (`subjects-service`) & Frontend** | Microservicio `subjects-service`, base de datos `subjects_db`, gestión y almacenamiento de contenidos temáticos en PDF ($\le$ 10MB) en Azure Blob Storage con SAS Tokens (15 min), telemetría de caché (`X-Cache`) e interfaz web de usuario (React + Tailwind CSS). |
+| **Karen Cruz** | Desarrolladora Backend & Ciclo de Vida Estudiantil | **Módulo de Estudiantes (`students-service`) & Matrículas (`enrollments-service`)** | Microservicios `students-service` y `enrollments-service`, bases de datos `students_db` y `enrollments_db`, carga y validación de fotografías de perfil (JPG/PNG $\le$ 2MB) en bucket privado, control transaccional de cupos e inicialización de datos académicos. |
+
+---
+
+## 4. Requisitos Previos (Entorno Local)
 
 - **Docker** y **Docker Compose** instalados (probado en Docker 29+).
 - Navegador web moderno (Chrome, Edge, Firefox).
 
 ---
 
-## 3. Puesta en Marcha en Entorno Local
+## 5. Puesta en Marcha en Entorno Local
 
 1. Clonar el repositorio o ubicarse en la carpeta raíz del proyecto:
    ```bash
@@ -66,7 +79,7 @@ El sistema se encuentra desplegado y activo en la nube de Microsoft Azure bajo l
 
 ---
 
-## 4. Credenciales de Prueba Preconfiguradas
+## 6. Credenciales de Prueba Preconfiguradas
 
 | Rol | Usuario / Correo | Contraseña | Capacidades y Reglas |
 | :--- | :--- | :--- | :--- |
@@ -76,7 +89,7 @@ El sistema se encuentra desplegado y activo en la nube de Microsoft Azure bajo l
 
 ---
 
-## 5. Pruebas y Comportamientos Requeridos en Laboratorio 4
+## 7. Pruebas y Comportamientos Requeridos en Laboratorio 4
 
 ### A. Caché Redis (Patrón Cache-Aside en Gateway)
 - **Primera consulta a materias (`GET /api/subjects`)**: Retorna cabecera `X-Cache: MISS` (obtenido del microservicio downstream y guardado en Redis con TTL de 180s).
